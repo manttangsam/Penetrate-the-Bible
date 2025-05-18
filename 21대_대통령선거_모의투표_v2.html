@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>21대 대통령선거 모의투표</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+    .candidate {
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 160px;
+    }
+    .candidate img {
+      width: 100%;
+      height: auto;
+    }
+    .candidate button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .candidate button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    #chart {
+      max-width: 600px;
+      margin: 30px auto;
+    }
+    #voteCountsTable {
+      max-width: 600px;
+      margin: 0 auto;
+      margin-top: 20px;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-size: 16px;
+    }
+    #voteCountsTable ul {
+      list-style: none;
+      padding: 0;
+    }
+    #voteCountsTable li {
+      padding: 5px 0;
+      border-bottom: 1px solid #eee;
+    }
+    #voteCountsTable li:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>21대 대통령선거 모의투표</h1>
+  <div class="container">
+    <div class="candidate">
+      <img src="이재명.webp" alt="1 이재명">
+      <button onclick="vote('이재명')">1. 이재명</button>
+    </div>
+    <div class="candidate">
+      <img src="김문수.gif" alt="2 김문수">
+      <button onclick="vote('김문수')">2. 김문수</button>
+    </div>
+    <div class="candidate">
+      <img src="강성희_진보당.webp" alt="3 강성희">
+      <button onclick="vote('강성희')">3. 강성희</button>
+    </div>
+    <div class="candidate">
+      <img src="이준석.webp" alt="4 이준석">
+      <button onclick="vote('이준석')">4. 이준석</button>
+    </div>
+    <div class="candidate">
+      <img src="권영국_민노당.webp" alt="5 권영국">
+      <button onclick="vote('권영국')">5. 권영국</button>
+    </div>
+    <div class="candidate">
+      <img src="구주와.webp" alt="6 구주와">
+      <button onclick="vote('구주와')">6. 구주와</button>
+    </div>
+    <div class="candidate">
+      <img src="황교안.webp" alt="7 황교안">
+      <button onclick="vote('황교안')">7. 황교안</button>
+    </div>
+    <div class="candidate">
+      <img src="송진호_무소속.webp" alt="8 송진호">
+      <button onclick="vote('송진호')">8. 송진호</button>
+    </div>
+  </div>
+  <div id="result"></div>
+  <div id="chart">
+    <canvas id="voteChart"></canvas>
+  </div>
+  <div id="voteCountsTable">
+    <strong>실시간 득표 현황:</strong>
+    <ul id="countsList"></ul>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const voteCounts = {
+      '이재명': 0,
+      '김문수': 0,
+      '강성희': 0,
+      '이준석': 0,
+      '권영국': 0,
+      '구주와': 0,
+      '황교안': 0,
+      '송진호': 0
+    };
+
+    const ctx = document.getElementById('voteChart').getContext('2d');
+    const voteChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(voteCounts),
+        datasets: [{
+          label: '투표 수',
+          data: Object.values(voteCounts),
+          backgroundColor: 'rgba(0, 123, 255, 0.5)',
+          borderColor: 'rgba(0, 123, 255, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    function vote(name) {
+      if (localStorage.getItem('voted') === 'true') {
+        document.getElementById('result').innerText = "이미 투표하셨습니다.";
+        return;
+      }
+      voteCounts[name]++;
+      voteChart.data.datasets[0].data = Object.values(voteCounts);
+      voteChart.update();
+      document.getElementById('result').innerText = `당신은 "${name}" 후보를 선택하셨습니다.`;
+      localStorage.setItem('voted', 'true');
+      updateVoteCounts();
+    }
+
+    function updateVoteCounts() {
+      const list = document.getElementById('countsList');
+      const total = Object.values(voteCounts).reduce((a, b) => a + b, 0);
+      list.innerHTML = `<li><strong>총 투표 수:</strong> ${total}</li>` +
+        Object.entries(voteCounts)
+              .map(([key, val]) => `<li>${key}: ${val}표</li>`) 
+              .join('');
+    }
+  </script>
+</body>
+</html>
