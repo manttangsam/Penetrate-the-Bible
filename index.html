@@ -111,7 +111,6 @@
       '송진호': 0
     };
 
-    // 복원
     const savedCounts = localStorage.getItem('voteCounts');
     if (savedCounts) {
       voteCounts = JSON.parse(savedCounts);
@@ -143,6 +142,7 @@
     function vote(name) {
       if (localStorage.getItem('voted') === 'true') {
         document.getElementById('result').innerText = "이미 투표하셨습니다.";
+        updateVoteCounts(); // 그래도 현황은 보여줘야 함
         return;
       }
       voteCounts[name]++;
@@ -161,9 +161,11 @@
         Object.entries(voteCounts)
               .map(([key, val]) => `<li>${key}: ${val}표</li>`)
               .join('');
+      voteChart.data.datasets[0].data = Object.values(voteCounts);
+      voteChart.update();
     }
 
-    // 최초 로드시 통계표시
+    // 초기 표시
     updateVoteCounts();
   </script>
 </body>
